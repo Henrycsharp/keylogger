@@ -3,7 +3,7 @@ import os
 import sys
 
 def kill_keylogger(script_name):
-    """Kill the keylogger script by name."""
+    """Kill the keylogger script by Henry."""
     for proc in psutil.process_iter(['pid', 'name', 'exe']):
         try:
             if script_name in proc.info['exe']:
@@ -18,5 +18,5 @@ def kill_keylogger(script_name):
     print("Keylogger not found.")
 
 if __name__ == "__main__":
-    script_name = "keylogger_script.py"  # Replace this with your keylogger script name
+    script_name = "main.py"  # Replace this with your keylogger script name
     kill_keylogger(script_name)
