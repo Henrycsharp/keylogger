@@ -18,5 +18,5 @@ def kill_keylogger(script_name):
     print("Keylogger not found.")
 
 if __name__ == "__main__":
-    script_name = "keylogger_script.py"  # Replace with the exact script name or part of it
-    kill_keylogger(main.py)
+    script_name = "main.py"  # Replace with the exact script name or part of it
+    kill_keylogger(script_name)
